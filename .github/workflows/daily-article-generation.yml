@@ -2,18 +2,18 @@ name: Daily Article Generation
 
 on:
   schedule:
-    # Runs at 10:25 AM Sri Lanka Time (04:50 UTC)
-    - cron: '55 4 * * *'
+    # Runs at 10:20 AM Sri Lanka Time (UTC+5:30)
+    - cron: '01 5 * * *'
   workflow_dispatch: # Allows manual triggering
 
 jobs:
   trigger-strapi-api:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Trigger Strapi API
-      run: |
-        curl -X POST "https://effortless-connection-2f75f4ee80.strapiapp.com/api/daily-article-generation" \
-          -H "Content-Type: application/json" \
-          -H "Authorization: Bearer ${{ secrets.STRAPI_API_TOKEN }}"
-      timeout-minutes: 5 # Give enough time for article generation
+      - name: Trigger Strapi API
+        run: |
+          curl -X POST "https://effortless-connection-2f75f4ee80.strapiapp.com/api/daily-article-generation" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.STRAPI_API_TOKEN }}"
+        timeout-minutes: 5
