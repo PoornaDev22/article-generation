@@ -3,7 +3,7 @@ name: Daily Article Generation
 on:
   schedule:
     # Runs at 10:20 AM Sri Lanka Time (UTC+5:30)
-    - cron: '01 5 * * *'
+    - cron: '10 5 * * *'
   workflow_dispatch: # Allows manual triggering
 
 jobs:
