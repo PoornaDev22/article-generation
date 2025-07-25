@@ -13,6 +13,7 @@ jobs:
     steps:
     - name: Trigger Strapi API
       run: |
-        curl -X POST "http://localhost:1337/api/daily-article-generation" \
+        curl -X POST "https://effortless-connection-2f75f4ee80.strapiapp.com/api/daily-article-generation" \
           -H "Content-Type: application/json" \
           -H "Authorization: Bearer ${{ secrets.STRAPI_API_TOKEN }}"
+      timeout-minutes: 5 # Give enough time for article generation
