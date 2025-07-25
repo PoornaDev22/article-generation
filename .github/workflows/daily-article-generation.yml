@@ -2,9 +2,8 @@ name: Daily Article Generation
 
 on:
   schedule:
-    # Runs at 10:20 AM Sri Lanka Time (UTC+5:30)
-    - cron: '45 4 * * *'  # 4:50 AM UTC = 10:15 AM IST
-    timezone: 'Asia/Colombo'
+    # Runs at 10:25 AM Sri Lanka Time (04:50 UTC)
+    - cron: '55 4 * * *'
   workflow_dispatch: # Allows manual triggering
 
 jobs:
