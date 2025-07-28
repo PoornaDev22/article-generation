@@ -2,8 +2,8 @@ name: Daily Article Generation
 
 on:
   schedule:
-    # 2:00 PM Sri Lanka Time = 08:30 UTC
-    - cron: '30 8 * * *'
+    # 6:00 AM Sri Lanka Time = 00:30 UTC
+    - cron: '30 0 * * *'
   workflow_dispatch:
 
 jobs:
@@ -19,14 +19,14 @@ jobs:
 
           for ((i=1; i<=MAX_RETRIES; i++)); do
             echo "Attempt $i..."
-            HTTP_CODE=$(curl -s -o response.json -w "%{http_code}" -X POST "https://effortless-connection-2f75f4ee80.strapiapp.com/api/daily-article-generation" \
+            RESPONSE=$(curl -s -w "%{http_code}" -o response.json -X POST "https://effortless-connection-2f75f4ee80.strapiapp.com/api/daily-article-generation" \
               -H "Content-Type: application/json" \
               -H "Authorization: Bearer ${{ secrets.STRAPI_API_TOKEN }}")
 
-            echo "Status code: $HTTP_CODE"
+            echo "Status code: $RESPONSE"
             cat response.json
 
-            if [ "$HTTP_CODE" -eq 200 ]; then
+            if [ "$RESPONSE" -eq 200 ]; then
               echo "✅ Success on attempt $i"
               SUCCESS=true
               break
@@ -39,7 +39,7 @@ jobs:
             fi
           done
 
-          if [ "$SUCCESS" = "false" ]; then
+          if [ "$SUCCESS" = false ]; then
             echo "❌ All $MAX_RETRIES attempts failed."
             exit 1
           fi
