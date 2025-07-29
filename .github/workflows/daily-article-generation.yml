@@ -1,45 +1,45 @@
-name: Daily Article Generation
+# name: Daily Article Generation
 
-on:
-  schedule:
-    # 6:00 AM Sri Lanka Time = 00:30 UTC
-    - cron: '30 0 * * *'
-  workflow_dispatch:
+# on:
+#   schedule:
+#     # 6:00 AM Sri Lanka Time = 00:30 UTC
+#     - cron: '30 0 * * *'
+#   workflow_dispatch:
 
-jobs:
-  trigger-strapi-api:
-    runs-on: ubuntu-latest
+# jobs:
+#   trigger-strapi-api:
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Retry article generation up to 5 times
-        run: |
-          MAX_RETRIES=5
-          RETRY_INTERVAL=120  # seconds (2 minutes)
-          SUCCESS=false
+#     steps:
+#       - name: Retry article generation up to 5 times
+#         run: |
+#           MAX_RETRIES=5
+#           RETRY_INTERVAL=120  # seconds (2 minutes)
+#           SUCCESS=false
 
-          for ((i=1; i<=MAX_RETRIES; i++)); do
-            echo "Attempt $i..."
-            RESPONSE=$(curl -s -w "%{http_code}" -o response.json -X POST "https://effortless-connection-2f75f4ee80.strapiapp.com/api/daily-article-generation" \
-              -H "Content-Type: application/json" \
-              -H "Authorization: Bearer ${{ secrets.STRAPI_API_TOKEN }}")
+#           for ((i=1; i<=MAX_RETRIES; i++)); do
+#             echo "Attempt $i..."
+#             RESPONSE=$(curl -s -w "%{http_code}" -o response.json -X POST "https://effortless-connection-2f75f4ee80.strapiapp.com/api/daily-article-generation" \
+#               -H "Content-Type: application/json" \
+#               -H "Authorization: Bearer ${{ secrets.STRAPI_API_TOKEN }}")
 
-            echo "Status code: $RESPONSE"
-            cat response.json
+#             echo "Status code: $RESPONSE"
+#             cat response.json
 
-            if [ "$RESPONSE" -eq 200 ]; then
-              echo "✅ Success on attempt $i"
-              SUCCESS=true
-              break
-            else
-              echo "❌ Failed attempt $i"
-              if [ "$i" -lt "$MAX_RETRIES" ]; then
-                echo "⏳ Waiting $RETRY_INTERVAL seconds before retrying..."
-                sleep $RETRY_INTERVAL
-              fi
-            fi
-          done
+#             if [ "$RESPONSE" -eq 200 ]; then
+#               echo "✅ Success on attempt $i"
+#               SUCCESS=true
+#               break
+#             else
+#               echo "❌ Failed attempt $i"
+#               if [ "$i" -lt "$MAX_RETRIES" ]; then
+#                 echo "⏳ Waiting $RETRY_INTERVAL seconds before retrying..."
+#                 sleep $RETRY_INTERVAL
+#               fi
+#             fi
+#           done
 
-          if [ "$SUCCESS" = false ]; then
-            echo "❌ All $MAX_RETRIES attempts failed."
-            exit 1
-          fi
+#           if [ "$SUCCESS" = false ]; then
+#             echo "❌ All $MAX_RETRIES attempts failed."
+#             exit 1
+#           fi
