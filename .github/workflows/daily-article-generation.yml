@@ -1,45 +1,41 @@
-# name: Daily Article Generation
+name: Delete Old Articles Only
+on:
+  workflow_dispatch:
+    inputs:
+      force_cleanup:
+        description: 'Force cleanup of old articles'
+        required: false
+        default: 'true'
+        type: boolean
 
-# on:
-#   schedule:
-#     # 6:00 AM Sri Lanka Time = 00:30 UTC
-#     - cron: '30 0 * * *'
-#   workflow_dispatch:
-
-# jobs:
-#   trigger-strapi-api:
-#     runs-on: ubuntu-latest
-
-#     steps:
-#       - name: Retry article generation up to 5 times
-#         run: |
-#           MAX_RETRIES=5
-#           RETRY_INTERVAL=120  # seconds (2 minutes)
-#           SUCCESS=false
-
-#           for ((i=1; i<=MAX_RETRIES; i++)); do
-#             echo "Attempt $i..."
-#             RESPONSE=$(curl -s -w "%{http_code}" -o response.json -X POST "https://effortless-connection-2f75f4ee80.strapiapp.com/api/daily-article-generation" \
-#               -H "Content-Type: application/json" \
-#               -H "Authorization: Bearer ${{ secrets.STRAPI_API_TOKEN }}")
-
-#             echo "Status code: $RESPONSE"
-#             cat response.json
-
-#             if [ "$RESPONSE" -eq 200 ]; then
-#               echo "✅ Success on attempt $i"
-#               SUCCESS=true
-#               break
-#             else
-#               echo "❌ Failed attempt $i"
-#               if [ "$i" -lt "$MAX_RETRIES" ]; then
-#                 echo "⏳ Waiting $RETRY_INTERVAL seconds before retrying..."
-#                 sleep $RETRY_INTERVAL
-#               fi
-#             fi
-#           done
-
-#           if [ "$SUCCESS" = false ]; then
-#             echo "❌ All $MAX_RETRIES attempts failed."
-#             exit 1
-#           fi
+jobs:
+  cleanup-old-articles:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cleanup old articles
+        id: cleanup
+        run: |
+          echo "🧹 Starting cleanup of old articles..."
+          echo "📅 Current time: $(date)"
+          
+          # Call the cleanup endpoint
+          CLEANUP_RESPONSE=$(curl -s -w "%{http_code}" -o cleanup_response.json -X POST "https://effortless-connection-2f75f4ee80.strapiapp.com/api/delete-old-articles" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.STRAPI_API_TOKEN }}")
+          
+          echo "📊 Cleanup HTTP Status: $CLEANUP_RESPONSE"
+          echo "📄 Cleanup Response Details:"
+          cat cleanup_response.json
+          echo ""
+          
+          # Check response
+          if [ "$CLEANUP_RESPONSE" -eq 200 ] || [ "$CLEANUP_RESPONSE" -eq 207 ]; then
+            echo "✅ Cleanup completed successfully"
+          else
+            echo "⚠️ Cleanup failed with status $CLEANUP_RESPONSE"
+            echo "🔍 Cleanup response details:"
+            cat cleanup_response.json
+            exit 1
+          fi
+          
+          echo "🧹 Cleanup finished at: $(date)"
