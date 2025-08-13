@@ -1,4 +1,4 @@
-name: Delete Old Articles Only
+name: Delete Old Articles Only (With Retries)
 on:
   workflow_dispatch:
     inputs:
@@ -12,30 +12,52 @@ jobs:
   cleanup-old-articles:
     runs-on: ubuntu-latest
     steps:
-      - name: Cleanup old articles
+      - name: Cleanup old articles with retries
         id: cleanup
         run: |
           echo "🧹 Starting cleanup of old articles..."
           echo "📅 Current time: $(date)"
           
-          # Call the cleanup endpoint
-          CLEANUP_RESPONSE=$(curl -s -w "%{http_code}" -o cleanup_response.json -X POST "https://effortless-connection-2f75f4ee80.strapiapp.com/api/delete-old-articles" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${{ secrets.STRAPI_API_TOKEN }}")
+          MAX_RETRIES=3
+          RETRY_DELAY=60  # seconds (1 minute)
+          SUCCESS=false
           
-          echo "📊 Cleanup HTTP Status: $CLEANUP_RESPONSE"
-          echo "📄 Cleanup Response Details:"
-          cat cleanup_response.json
-          echo ""
-          
-          # Check response
-          if [ "$CLEANUP_RESPONSE" -eq 200 ] || [ "$CLEANUP_RESPONSE" -eq 207 ]; then
-            echo "✅ Cleanup completed successfully"
-          else
-            echo "⚠️ Cleanup failed with status $CLEANUP_RESPONSE"
-            echo "🔍 Cleanup response details:"
+          for ((i=1; i<=MAX_RETRIES; i++)); do
+            echo ""
+            echo "🔄 Attempt $i of $MAX_RETRIES..."
+            
+            # Call the cleanup endpoint
+            CLEANUP_RESPONSE=$(curl -s -w "%{http_code}" -o cleanup_response.json -X POST "https://effortless-connection-2f75f4ee80.strapiapp.com/api/delete-old-articles" \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer ${{ secrets.STRAPI_API_TOKEN }}")
+            
+            echo "📊 HTTP Status: $CLEANUP_RESPONSE"
+            echo "📄 Response Details:"
             cat cleanup_response.json
-            exit 1
-          fi
+            echo ""
+            
+            if [ "$CLEANUP_RESPONSE" -eq 200 ] || [ "$CLEANUP_RESPONSE" -eq 207 ]; then
+              echo "✅ Cleanup completed successfully on attempt $i"
+              SUCCESS=true
+              break
+            else
+              echo "❌ Attempt $i failed with status $CLEANUP_RESPONSE"
+              
+              if [ "$i" -lt "$MAX_RETRIES" ]; then
+                echo "⏳ Waiting $RETRY_DELAY seconds before retry..."
+                sleep $RETRY_DELAY
+              fi
+            fi
+          done
           
-          echo "🧹 Cleanup finished at: $(date)"
+          if [ "$SUCCESS" = false ]; then
+            echo "❌ All $MAX_RETRIES attempts failed!"
+            echo "🔍 Final response:"
+            cat cleanup_response.json
+            echo ""
+            echo "🚨 Cleanup failed - please check Strapi logs or server status"
+            exit 1
+          else
+            echo "🎉 Cleanup completed successfully!"
+            echo "✨ Finished at: $(date)"
+          fi
