@@ -9,7 +9,7 @@ interface GeminiResponse { candidates?: Array<{ content: { parts: Array<{ text: 
 interface GeminiError { error: { message: string } }
 
 async function generateArticleWithKey(keyword: string): Promise<{ content: string; category: string }> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${process.env.GEMINI_API_KEY}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
 
   // Step 1: Title
   const titleRes = await fetch(url, {
