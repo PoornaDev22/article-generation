@@ -1,0 +1,13 @@
+{
+    "name": "article-generator",
+    "version": "1.0.0",
+    "type": "module",
+    "dependencies": {
+      "@supabase/supabase-js": "^2",
+      "@google/generative-ai": "^0.21.0"
+    },
+    "devDependencies": {
+      "tsx": "^4",
+      "typescript": "^5"
+    }
+  }
