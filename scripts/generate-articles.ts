@@ -21,7 +21,7 @@ async function fetchTrendingKeywords(): Promise<string[]> {
 
 // --- Generate article with Gemini ---
 async function generateArticle(keyword: string) {
-  const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
   const prompt = `Write a detailed, engaging news article about: "${keyword}".
 Return JSON with this exact shape:
