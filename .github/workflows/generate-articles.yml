@@ -1,26 +1,21 @@
-# .github/workflows/generate-articles.yml
 name: Generate Articles
 
 on:
   schedule:
-    - cron: '0 6 * * *'   # 6am UTC
-    - cron: '0 18 * * *'  # 6pm UTC
-  workflow_dispatch:        # manual trigger
+    - cron: '0 6 * * *'   # 6am UTC daily
+  workflow_dispatch:
 
 jobs:
   generate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-
+          node-version: '24'
       - name: Install deps
         run: npm install
         working-directory: scripts
-
       - name: Run generation
         run: npx tsx generate-articles.ts
         working-directory: scripts
@@ -28,3 +23,6 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
+          GOOGLE_CSE_API_KEY: ${{ secrets.GOOGLE_CSE_API_KEY }}
+          GOOGLE_CSE_ID: ${{ secrets.GOOGLE_CSE_ID }}
